@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-30T04:40:15.344800+00:00",
+  "success": true,
+  "expectations_evaluated": 21,
+  "failed_expectations": 0,
+  "critical_failures": 0,
+  "routed_action": "allow",
+  "failures": []
+}

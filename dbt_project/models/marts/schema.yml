@@ -5,6 +5,12 @@ models:
     description: Daily completed-order revenue for the CEO dashboard.
     columns:
       - name: order_date
+        description: Grain of this mart - exactly one row per day.
+        data_tests:
+          - not_null
+          # Grain test. If this breaks, the dashboard sums the same day twice.
+          - unique
+      - name: completed_order_rows
         data_tests:
           - not_null
       - name: daily_revenue

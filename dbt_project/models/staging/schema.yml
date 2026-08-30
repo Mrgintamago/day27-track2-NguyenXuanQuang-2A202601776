@@ -5,10 +5,24 @@ models:
     description: Cleaned order records used by downstream marts.
     columns:
       - name: order_id
+        description: Primary key of the order stream.
         data_tests:
           - not_null
           - unique
       - name: customer_id
+        data_tests:
+          - not_null
+          # Orphan orders still contribute revenue through the LEFT JOIN, so a
+          # broken FK is invisible in the mart. Catch it at the edge instead.
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: amount_usd
+        description: Order amount in USD; feeds daily_revenue directly.
+        data_tests:
+          - not_null
+      - name: order_date
         data_tests:
           - not_null
       - name: currency
@@ -23,7 +37,19 @@ models:
                 values: ['pending', 'completed', 'refunded', 'cancelled']
 
   - name: stg_customers
+    description: Customer dimension. Historised, so customer_id is NOT unique here.
     columns:
       - name: customer_id
         data_tests:
           - not_null
+      - name: is_active
+        description: >
+          Current-version flag. A null here silently drops the row from
+          fct_daily_revenue's active_customers CTE (WHERE is_active = true),
+          so it must never be null.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+                quote: false
